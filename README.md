@@ -1,6 +1,6 @@
 # Paint-js
 
-A javascript drawing app using Canvas
+A javascript drawing app using HTML5 Canvas
 
 How to use:
 
