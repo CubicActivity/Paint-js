@@ -1,25 +1,31 @@
+// Canvas Variables
 const canvas = document.querySelector("canvas"),
-toolBtns = document.querySelectorAll(".tool"),
+ctx = canvas.getContext("2d");
+const toolBtns = document.querySelectorAll(".tool"),
 fillColor = document.querySelector("#fill-color"),
 sizeSlider = document.querySelector("#size-slider"),
 colorBtns = document.querySelectorAll(".colors .option"),
 colorPicker = document.querySelector("#color-picker"),
 clearCanvas = document.querySelector(".clear-canvas"),
-saveImg = document.querySelector(".save-img"),
-ctx = canvas.getContext("2d");
+saveImg = document.querySelector(".save-img");
 
-// global variables with default value
-let prevMouseX, prevMouseY, snapshot,
-isDrawing = false,
-selectedTool = "brush",
-brushWidth = 5,
-selectedColor = "#000";
+/* Global variables with default value */
+let snapshot;
+let isDrawing = false;
+let selectedTool = "brush";
+// Mouse Coordinates
+let prevMouseX, prevMouseY;
+// Brush Variables
+let brushWidth = 5;
+let selectedColor = "#000";
 
 const setCanvasBackground = () => {
     // setting whole canvas background to white, so the downloaded img background will be white
     ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = selectedColor; // setting fillstyle back to the selectedColor, it'll be the brush color
+    
+    // setting fillstyle back to the selectedColor, it'll be the brush color
+    ctx.fillStyle = selectedColor;
 }
 
 window.addEventListener("load", () => {
@@ -39,44 +45,63 @@ const drawRect = (e) => {
 }
 
 const drawCircle = (e) => {
-    ctx.beginPath(); // creating new path to draw circle
-    // getting radius for circle according to the mouse pointer
+    // Creates the new path to draw circle
+    ctx.beginPath();
+    // Getting radius for circle according to the mouse pointer
     let radius = Math.sqrt(Math.pow((prevMouseX - e.offsetX), 2) + Math.pow((prevMouseY - e.offsetY), 2));
-    ctx.arc(prevMouseX, prevMouseY, radius, 0, 2 * Math.PI); // creating circle according to the mouse pointer
+    // Creates the circle according to the mouse pointer
+    ctx.arc(prevMouseX, prevMouseY, radius, 0, 2 * Math.PI);
     fillColor.checked ? ctx.fill() : ctx.stroke(); // if fillColor is checked fill circle else draw border circle
 }
 
 const drawTriangle = (e) => {
-    ctx.beginPath(); // creating new path to draw circle
-    ctx.moveTo(prevMouseX, prevMouseY); // moving triangle to the mouse pointer
-    ctx.lineTo(e.offsetX, e.offsetY); // creating first line according to the mouse pointer
-    ctx.lineTo(prevMouseX * 2 - e.offsetX, e.offsetY); // creating bottom line of triangle
-    ctx.closePath(); // closing path of a triangle so the third line draw automatically
-    fillColor.checked ? ctx.fill() : ctx.stroke(); // if fillColor is checked fill triangle else draw border
+    // Creates the new path to draw circle
+    ctx.beginPath();
+    // moving triangle to the mouse pointer
+    ctx.moveTo(prevMouseX, prevMouseY);
+    // creating first line according to the mouse pointer
+    ctx.lineTo(e.offsetX, e.offsetY);
+    // creating bottom line of triangle
+    ctx.lineTo(prevMouseX * 2 - e.offsetX, e.offsetY);
+    // closing path of a triangle so the third line draw automatically
+    ctx.closePath();
+    // if fillColor is checked fill triangle else draw border
+    fillColor.checked ? ctx.fill() : ctx.stroke();
 }
 
 const startDraw = (e) => {
     isDrawing = true;
-    prevMouseX = e.offsetX; // passing current mouseX position as prevMouseX value
-    prevMouseY = e.offsetY; // passing current mouseY position as prevMouseY value
-    ctx.beginPath(); // creating new path to draw
-    ctx.lineWidth = brushWidth; // passing brushSize as line width
-    ctx.strokeStyle = selectedColor; // passing selectedColor as stroke style
-    ctx.fillStyle = selectedColor; // passing selectedColor as fill style
+    // Passing current mouseX position as prevMouseX value
+    prevMouseX = e.offsetX;
+    // passing current mouseY position as prevMouseY value
+    prevMouseY = e.offsetY;
+    // creating new path to draw
+    ctx.beginPath();
+    // passing brushSize as line width
+    ctx.lineWidth = brushWidth;
+    // passing selectedColor as stroke style
+    ctx.strokeStyle = selectedColor;
+    // passing selectedColor as fill style
+    ctx.fillStyle = selectedColor;
     // copying canvas data & passing as snapshot value.. this avoids dragging the image
     snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
 }
 
 const drawing = (e) => {
-    if(!isDrawing) return; // if isDrawing is false return from here
-    ctx.putImageData(snapshot, 0, 0); // adding copied canvas data on to this canvas
+    // if isDrawing is false return from here
+    if(!isDrawing) return;
+    // adding copied canvas data on to this canvas
+    ctx.putImageData(snapshot, 0, 0);
 
     if(selectedTool === "brush" || selectedTool === "eraser") {
         // if selected tool is eraser then set strokeStyle to white 
         // to paint white color on to the existing canvas content else set the stroke color to selected color
         ctx.strokeStyle = selectedTool === "eraser" ? "#fff" : selectedColor;
-        ctx.lineTo(e.offsetX, e.offsetY); // creating line according to the mouse pointer
-        ctx.stroke(); // drawing/filling line with color
+        
+        // Creates the line according to the mouse pointer
+        // drawing/filling line with color
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.stroke();
     } else if(selectedTool === "rectangle"){
         drawRect(e);
     } else if(selectedTool === "circle"){
@@ -95,10 +120,12 @@ toolBtns.forEach(btn => {
     });
 });
 
-sizeSlider.addEventListener("change", () => brushWidth = sizeSlider.value); // passing slider value as brushSize
+// Passing slider value as brushSize
+sizeSlider.addEventListener("change", () => brushWidth = sizeSlider.value);
 
 colorBtns.forEach(btn => {
-    btn.addEventListener("click", () => { // adding click event to all color button
+    // Adding click event to all color button
+    btn.addEventListener("click", () => {
         // removing selected class from the previous option and adding on current clicked option
         document.querySelector(".options .selected").classList.remove("selected");
         btn.classList.add("selected");
@@ -113,18 +140,26 @@ colorPicker.addEventListener("change", () => {
     colorPicker.parentElement.click();
 });
 
+// Clears the canvas
 clearCanvas.addEventListener("click", () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // clearing whole canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     setCanvasBackground();
 });
 
 saveImg.addEventListener("click", () => {
-    const link = document.createElement("a"); // creating <a> element
-    link.download = `${Date.now()}.jpg`; // passing current date as link download value
-    link.href = canvas.toDataURL(); // passing canvasData as link href value
-    link.click(); // clicking link to download image
+    // creating <a> element
+    const link = document.createElement("a");
+    // passing current date as link download value
+    link.download = `${Date.now()}.jpg`;
+    // passing canvasData as link href value
+    link.href = canvas.toDataURL();
+    // clicking link to download image
+    link.click();
 });
 
+// startDraw - Starts drawing when the mouse is clicked on the canvas
+// drawing - Follows the mouse and draws on the canvas while it's still clicked
+// isDrawing - Checks if the mouse is still clicked on the canvas, if it isn't it stops drawing
 canvas.addEventListener("mousedown", startDraw);
 canvas.addEventListener("mousemove", drawing);
 canvas.addEventListener("mouseup", () => isDrawing = false);
