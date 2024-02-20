@@ -35,6 +35,8 @@ window.addEventListener("load", () => {
     setCanvasBackground();
 });
 
+/* Drawing Functions */
+
 const drawRect = (e) => {
     // if fillColor isn't checked draw a rect with border else draw rect with background
     if(!fillColor.checked) {
@@ -111,17 +113,17 @@ const drawing = (e) => {
     }
 }
 
+/* Button Functions */
+
 toolBtns.forEach(btn => {
-    btn.addEventListener("click", () => { // adding click event to all tool option
+    // Adding click event to all tool option
+    btn.addEventListener("click", () => {
         // removing active class from the previous option and adding on current clicked option
         document.querySelector(".options .active").classList.remove("active");
         btn.classList.add("active");
         selectedTool = btn.id;
     });
 });
-
-// Passing slider value as brushSize
-sizeSlider.addEventListener("change", () => brushWidth = sizeSlider.value);
 
 colorBtns.forEach(btn => {
     // Adding click event to all color button
@@ -133,6 +135,8 @@ colorBtns.forEach(btn => {
         selectedColor = window.getComputedStyle(btn).getPropertyValue("background-color");
     });
 });
+
+/* Eventlisteners */
 
 colorPicker.addEventListener("change", () => {
     // passing picked color value from color picker to last color btn background
@@ -156,6 +160,9 @@ saveImg.addEventListener("click", () => {
     // clicking link to download image
     link.click();
 });
+
+// Passing slider value as brushSize
+sizeSlider.addEventListener("change", () => brushWidth = sizeSlider.value);
 
 // startDraw - Starts drawing when the mouse is clicked on the canvas
 // drawing - Follows the mouse and draws on the canvas while it's still clicked
